@@ -6,6 +6,8 @@ import lombok.Setter;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -20,4 +22,21 @@ public class TransactionEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private TransactionType transactionType;
+
+    @Column(nullable = false)
+    private LocalDateTime datePosted;
+
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal transactionAmount;
+
+    @Column(nullable = false)
+    private String financialTransactionId;
+
+    @Column(nullable = false)
+    private String memo;
+
 }
