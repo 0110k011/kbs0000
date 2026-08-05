@@ -1,4 +1,11 @@
 package com.kbs0000.project.modules.transaction;
 
-public interface TransactionRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+
+import java.util.UUID;
+
+public interface TransactionRepository extends
+        JpaRepository<TransactionEntity, UUID>,
+        JpaSpecificationExecutor<TransactionEntity> {
 }
