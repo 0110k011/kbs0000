@@ -1,5 +1,6 @@
 package com.kbs0000.project.modules.transaction;
 
+import com.kbs0000.project.modules.transaction.dto.TransactionRequest;
 import com.kbs0000.project.modules.transaction.dto.TransactionResponse;
 import org.springframework.stereotype.Component;
 
@@ -33,5 +34,21 @@ public class TransactionMapper {
         return entities.stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    public TransactionEntity toEntity(TransactionRequest request) {
+
+        if (request == null) {
+            return null;
+        }
+
+        TransactionEntity entity = new TransactionEntity();
+        entity.setFinancialTransactionId(request.financialTransactionId());
+        entity.setTransactionType(request.transactionType());
+        entity.setDatePosted(request.datePosted());
+        entity.setTransactionAmount(request.transactionAmount());
+        entity.setMemo(request.memo());
+
+        return entity;
     }
 }

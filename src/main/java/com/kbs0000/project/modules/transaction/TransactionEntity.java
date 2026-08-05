@@ -1,8 +1,7 @@
 package com.kbs0000.project.modules.transaction;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -14,6 +13,9 @@ import java.util.UUID;
 @Table(name = "tb_transaction")
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class TransactionEntity implements Serializable {
 
     @Serial

@@ -2,6 +2,7 @@ package com.kbs0000.project.modules.transaction;
 
 import com.kbs0000.project.modules.transaction.dto.BatchTransactionRequest;
 import com.kbs0000.project.modules.transaction.dto.TransactionRequest;
+import com.kbs0000.project.modules.transaction.dto.TransactionResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -13,12 +14,14 @@ import java.util.stream.Collectors;
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
+    private final TransactionMapper transactionMapper;
 
-    public TransactionService(TransactionRepository transactionRepository) {
+    public TransactionService(TransactionRepository transactionRepository, TransactionMapper transactionMapper) {
         this.transactionRepository = transactionRepository;
+        this.transactionMapper = transactionMapper;
     }
 
-    public TransactionEntity createTransaction(BatchTransactionRequest request) {
+    public List<TransactionResponse> createTransaction(BatchTransactionRequest request) {
 
         List<String> financialTransactionIds = request.transactions().stream()
                 .map(TransactionRequest::financialTransactionId)
@@ -32,14 +35,17 @@ public class TransactionService {
 
         Set<String> processedRequest = new HashSet<>();
 
-        List<TransactionRequest> entities = request.transactions().stream()
+        List<TransactionEntity> entities = request.transactions().stream()
                 .filter(transaction -> !existingTransactionSet.contains(transaction.financialTransactionId()))
                 .filter(transaction -> processedRequest.add(transaction.financialTransactionId()))
+                .map(transactionMapper::toEntity)
                 .toList();
 
         try {
-            List<TransactionEntity> savedTransactions =
+            List<TransactionEntity> savedEntities = transactionRepository.saveAll(entities);
+            return transactionMapper.toResponseList(savedEntities);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save transactions", e);
         }
-        return transactionRepository.save(request);
     }
 }
