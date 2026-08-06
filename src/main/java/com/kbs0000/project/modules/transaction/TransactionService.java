@@ -47,7 +47,6 @@ public class TransactionService {
         }
 
         try {
-            int x = 1 / 0;
             List<TransactionEntity> savedEntities = transactionRepository.saveAll(entities);
             return transactionMapper.toResponseList(savedEntities);
         } catch (Exception e) {
