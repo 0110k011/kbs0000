@@ -1,8 +1,12 @@
 package com.kbs0000.project.modules.transaction;
 
+import com.kbs0000.project.infra.shared.exception.DatabaseErrorException;
+import com.kbs0000.project.infra.shared.exception.GlobalExceptionHandler;
 import com.kbs0000.project.modules.transaction.dto.BatchTransactionRequest;
 import com.kbs0000.project.modules.transaction.dto.TransactionRequest;
 import com.kbs0000.project.modules.transaction.dto.TransactionResponse;
+import com.kbs0000.project.modules.transaction.exception.TransactionAlreadyExistsException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -40,12 +44,15 @@ public class TransactionService {
                 .filter(transaction -> processedRequest.add(transaction.financialTransactionId()))
                 .map(transactionMapper::toEntity)
                 .toList();
+        if (entities.isEmpty()) {
+            throw new TransactionAlreadyExistsException();
+        }
 
         try {
             List<TransactionEntity> savedEntities = transactionRepository.saveAll(entities);
             return transactionMapper.toResponseList(savedEntities);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to save transactions", e);
+            throw new DatabaseErrorException("Error occurred while saving transaction(s)", e, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
