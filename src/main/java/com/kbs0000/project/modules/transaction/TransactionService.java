@@ -1,8 +1,6 @@
 package com.kbs0000.project.modules.transaction;
 
 import com.kbs0000.project.infra.shared.exception.DatabaseErrorException;
-import com.kbs0000.project.infra.shared.exception.GlobalExceptionHandler;
-import com.kbs0000.project.modules.transaction.dto.BatchTransactionRequest;
 import com.kbs0000.project.modules.transaction.dto.TransactionRequest;
 import com.kbs0000.project.modules.transaction.dto.TransactionResponse;
 import com.kbs0000.project.modules.transaction.exception.TransactionAlreadyExistsException;
@@ -25,9 +23,9 @@ public class TransactionService {
         this.transactionMapper = transactionMapper;
     }
 
-    public List<TransactionResponse> createTransaction(BatchTransactionRequest request) {
+    public List<TransactionResponse> createTransactions(List<TransactionRequest> transactions) {
 
-        List<String> financialTransactionIds = request.transactions().stream()
+        List<String> financialTransactionIds = transactions.stream()
                 .map(TransactionRequest::financialTransactionId)
                 .toList();
 
@@ -39,7 +37,7 @@ public class TransactionService {
 
         Set<String> processedRequest = new HashSet<>();
 
-        List<TransactionEntity> entities = request.transactions().stream()
+        List<TransactionEntity> entities = transactions.stream()
                 .filter(transaction -> !existingTransactionSet.contains(transaction.financialTransactionId()))
                 .filter(transaction -> processedRequest.add(transaction.financialTransactionId()))
                 .map(transactionMapper::toEntity)
@@ -49,6 +47,7 @@ public class TransactionService {
         }
 
         try {
+            int x = 1 / 0;
             List<TransactionEntity> savedEntities = transactionRepository.saveAll(entities);
             return transactionMapper.toResponseList(savedEntities);
         } catch (Exception e) {
