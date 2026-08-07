@@ -42,6 +42,7 @@ public class TransactionService {
                 .filter(transaction -> processedRequest.add(transaction.financialTransactionId()))
                 .map(transactionMapper::toEntity)
                 .toList();
+
         if (entities.isEmpty()) {
             throw new TransactionAlreadyExistsException();
         }

@@ -13,9 +13,9 @@ import java.util.UUID;
 @Table(name = "tb_transaction")
 @Getter
 @Setter
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class TransactionEntity implements Serializable {
 
     @Serial

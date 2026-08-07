@@ -42,13 +42,13 @@ public class TransactionMapper {
             return null;
         }
 
-        TransactionEntity entity = new TransactionEntity();
-        entity.setFinancialTransactionId(request.financialTransactionId());
-        entity.setTransactionType(request.transactionType());
-        entity.setDatePosted(request.datePosted());
-        entity.setTransactionAmount(request.transactionAmount());
-        entity.setMemo(request.memo());
+        return TransactionEntity.builder()
+                .transactionType(request.transactionType())
+                .datePosted(request.datePosted())
+                .transactionAmount(request.transactionAmount())
+                .financialTransactionId(request.financialTransactionId())
+                .memo(request.memo())
+                .build();
 
-        return entity;
     }
 }
