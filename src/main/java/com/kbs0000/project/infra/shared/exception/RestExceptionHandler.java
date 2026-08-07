@@ -1,6 +1,5 @@
 package com.kbs0000.project.infra.shared.exception;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,8 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.List;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
@@ -37,17 +37,28 @@ public class RestExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Map<String, Object>> handleConstraintViolationException(ConstraintViolationException exception) {
-        String errorMessage = exception.getConstraintViolations().stream()
-                .map(ConstraintViolation::getMessage)
-                .findFirst()
-                .orElse("Validation error");
+    public ResponseEntity<ValidationErrorResponse> handleConstraintViolationException(ConstraintViolationException exception) {
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-                "timestamp", LocalDateTime.now(),
-                "status", HttpStatus.BAD_REQUEST.value(),
-                "error", "Bad Request",
-                "message", errorMessage
+        List<ValidationErrorResponse.InvalidField> invalidFields = exception.getConstraintViolations().stream()
+                .map(violation -> {
+                    String propertyPath = violation.getPropertyPath().toString();
+                    String fieldName = propertyPath.contains(".")
+                            ? propertyPath.substring(propertyPath.lastIndexOf('.') + 1)
+                            : propertyPath;
+                    return new ValidationErrorResponse.InvalidField(
+                            fieldName,
+                            violation.getMessage()
+                    );
+                })
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ValidationErrorResponse(
+                Instant.now().toString(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                String.format("Validation failed with %d error(s)", invalidFields.size()),
+                invalidFields
         ));
     }
+
 }

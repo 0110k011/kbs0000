@@ -4,7 +4,6 @@ import com.kbs0000.project.infra.shared.exception.DatabaseErrorException;
 import com.kbs0000.project.modules.transaction.dto.TransactionRequest;
 import com.kbs0000.project.modules.transaction.dto.TransactionResponse;
 import com.kbs0000.project.modules.transaction.exception.TransactionAlreadyExistsException;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -13,7 +12,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -76,7 +74,7 @@ public class TransactionServiceTest {
 
         List<TransactionRequest> testRequests = List.of(testRequest);
 
-        when(transactionRepository.findByFinancialTransactionIdIn(any())).thenReturn(Collections.emptyList());
+        when(transactionRepository.findByFinancialTransactionIdIn(any())).thenReturn(List.of());
         when(transactionMapper.toEntity(any(TransactionRequest.class))).thenReturn(testEntity);
         when(transactionRepository.saveAll(any())).thenReturn(List.of(testEntity));
         when(transactionMapper.toResponseList(any())).thenReturn(List.of(testResponse));
@@ -97,7 +95,7 @@ public class TransactionServiceTest {
 
         List<TransactionRequest> testRequests = List.of(testRequest, testRequest);
 
-        when(transactionRepository.findByFinancialTransactionIdIn(any())).thenReturn(Collections.emptyList());
+        when(transactionRepository.findByFinancialTransactionIdIn(any())).thenReturn(List.of());
         when(transactionMapper.toEntity(any(TransactionRequest.class))).thenReturn(testEntity);
         when(transactionRepository.saveAll(any())).thenReturn(List.of(testEntity));
         when(transactionMapper.toResponseList(any())).thenReturn(List.of(testResponse));
@@ -157,7 +155,7 @@ public class TransactionServiceTest {
         TransactionRequest testRequest = createTestTransactionRequest(TransactionType.DEBIT, "100.00", "Test transaction");
         TransactionEntity testEntity = createTestTransactionEntity(testRequest);
 
-        when(transactionRepository.findByFinancialTransactionIdIn(any())).thenReturn(Collections.emptyList());
+        when(transactionRepository.findByFinancialTransactionIdIn(any())).thenReturn(List.of());
         when(transactionMapper.toEntity(any(TransactionRequest.class))).thenReturn(testEntity);
         when(transactionRepository.saveAll(any())).thenThrow(new RuntimeException("Database error"));
 
