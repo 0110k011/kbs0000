@@ -1,5 +1,6 @@
 package com.kbs0000.project.modules.transaction;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kbs0000.project.modules.transaction.dto.TransactionRequest;
 import com.kbs0000.project.modules.transaction.dto.TransactionResponse;
 import org.junit.jupiter.api.Test;
@@ -8,7 +9,6 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

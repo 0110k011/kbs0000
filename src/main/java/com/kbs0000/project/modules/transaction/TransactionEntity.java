@@ -35,7 +35,7 @@ public class TransactionEntity implements Serializable {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal transactionAmount;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String financialTransactionId;
 
     @Column(nullable = false)
