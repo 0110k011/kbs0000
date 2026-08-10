@@ -5,6 +5,6 @@ import org.springframework.http.HttpStatus;
 
 public class TransactionAlreadyExistsException extends ApiException {
     public TransactionAlreadyExistsException() {
-        super("Financial Transaction Id(s) already exists", HttpStatus.CONFLICT);
+        super("Financial Transaction(s) already exists", HttpStatus.CONFLICT);
     }
 }
