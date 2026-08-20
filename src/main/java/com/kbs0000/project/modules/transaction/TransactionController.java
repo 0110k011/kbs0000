@@ -24,7 +24,7 @@ public class TransactionController {
 
     @PostMapping("{accountId}")
     public ResponseEntity<List<TransactionResponse>> createTransactions(
-            @PathVariable("accountId") String accountId, //TODO need to verify name of the path variable, it should be accountId or accountCode
+            @PathVariable("accountId") String accountId, // TODO need to verify name of the path variable, it should be accountId or accountCode
             @RequestBody
             @NotEmpty(message = "Transaction request list cannot be empty")
             @Valid List<TransactionRequest> requests) {
