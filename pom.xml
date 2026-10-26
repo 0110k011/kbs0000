@@ -103,6 +103,11 @@
 			<version>1.20.4</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com</groupId>
+			<artifactId>ofx-reader</artifactId>
+			<version>1.0.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -172,5 +177,11 @@
 			</plugin>
 		</plugins>
 	</build>
+	<repositories>
+		<repository>
+			<id>github</id>
+			<url>https://maven.pkg.github.com/0110k011/ofx-reader</url>
+		</repository>
+	</repositories>
 
 </project>

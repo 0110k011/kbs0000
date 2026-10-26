@@ -1,8 +1,8 @@
 package com.kbs0000.project.modules.transaction;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kbs0000.project.modules.transaction.dto.TransactionRequest;
-import com.kbs0000.project.modules.transaction.dto.TransactionResponse;
+import com.kbs0000.project.modules.transaction.dto.TransactionRequestDto;
+import com.kbs0000.project.modules.transaction.dto.TransactionResponseDto;
 import com.kbs0000.project.modules.transaction.exception.TransactionAlreadyExistsException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +34,8 @@ public class TransactionControllerTest {
     private final ObjectMapper objectMapper = new ObjectMapper()
             .registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
 
-    private TransactionRequest cretateValidTransactionRequest() {
-        return new TransactionRequest(
+    private TransactionRequestDto cretateValidTransactionRequest() {
+        return new TransactionRequestDto(
                 TransactionType.DEBIT,
                 LocalDateTime.now(),
                 new BigDecimal("100.00"),
@@ -44,8 +44,8 @@ public class TransactionControllerTest {
         );
     }
 
-    private TransactionResponse createValidTransactionResponse() {
-        return new TransactionResponse(
+    private TransactionResponseDto createValidTransactionResponse() {
+        return new TransactionResponseDto(
                 UUID.randomUUID(),
                 UUID.randomUUID().toString(),
                 TransactionType.DEBIT.name(),
@@ -58,8 +58,8 @@ public class TransactionControllerTest {
     @Test
     void shouldReturn201CreatedWhenTransactionsAreCreated() throws Exception {
 
-        TransactionRequest testRequest = cretateValidTransactionRequest();
-        TransactionResponse testResponse = createValidTransactionResponse();
+        TransactionRequestDto testRequest = cretateValidTransactionRequest();
+        TransactionResponseDto testResponse = createValidTransactionResponse();
 
         when(transactionService.createTransactions(anyList())).thenReturn(List.of(testResponse));
 
@@ -87,7 +87,7 @@ public class TransactionControllerTest {
     @Test
     void shouldReturn400BadRequestWhenDtoIsInvalid() throws Exception {
 
-        TransactionRequest invalidRequest = new TransactionRequest(
+        TransactionRequestDto invalidRequest = new TransactionRequestDto(
                 TransactionType.DEBIT,
                 LocalDateTime.now(),
                 new BigDecimal("100.00"),
@@ -107,7 +107,7 @@ public class TransactionControllerTest {
     @Test
     void shouldReturn409ConflictWhenAllTransactionsAlreadyExist() throws Exception {
 
-        TransactionRequest testRequest = cretateValidTransactionRequest();
+        TransactionRequestDto testRequest = cretateValidTransactionRequest();
 
         when(transactionService.createTransactions(anyList()))
                 .thenThrow(new TransactionAlreadyExistsException());

@@ -1,8 +1,8 @@
 package com.kbs0000.project.modules.transaction;
 
 import com.kbs0000.project.infra.shared.exception.DatabaseErrorException;
-import com.kbs0000.project.modules.transaction.dto.TransactionRequest;
-import com.kbs0000.project.modules.transaction.dto.TransactionResponse;
+import com.kbs0000.project.modules.transaction.dto.TransactionRequestDto;
+import com.kbs0000.project.modules.transaction.dto.TransactionResponseDto;
 import com.kbs0000.project.modules.transaction.exception.TransactionAlreadyExistsException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,11 +30,11 @@ public class TransactionServiceTest {
     @InjectMocks
     private TransactionService transactionService;
 
-    private TransactionRequest createTestTransactionRequest(
+    private TransactionRequestDto createTestTransactionRequest(
             TransactionType transactionType,
             String amount,
             String memo) {
-        return new TransactionRequest(
+        return new TransactionRequestDto(
                 transactionType,
                 LocalDateTime.now(),
                 new BigDecimal(amount),
@@ -43,8 +43,8 @@ public class TransactionServiceTest {
         );
     }
 
-    private TransactionResponse createTestTransactionResponse(TransactionEntity entity) {
-        return new TransactionResponse(
+    private TransactionResponseDto createTestTransactionResponse(TransactionEntity entity) {
+        return new TransactionResponseDto(
                 entity.getId(),
                 entity.getFinancialTransactionId(),
                 entity.getTransactionType().name(),
@@ -54,7 +54,7 @@ public class TransactionServiceTest {
         );
     }
 
-    private TransactionEntity createTestTransactionEntity(TransactionRequest request) {
+    private TransactionEntity createTestTransactionEntity(TransactionRequestDto request) {
         return TransactionEntity.builder()
                 .id(UUID.randomUUID())
                 .transactionType(request.transactionType())
@@ -68,18 +68,18 @@ public class TransactionServiceTest {
     @Test
     void shouldSaveTransactionsSuccessfully() {
 
-        TransactionRequest testRequest = createTestTransactionRequest(TransactionType.DEBIT, "100.00", "Test transaction");
+        TransactionRequestDto testRequest = createTestTransactionRequest(TransactionType.DEBIT, "100.00", "Test transaction");
         TransactionEntity testEntity = createTestTransactionEntity(testRequest);
-        TransactionResponse testResponse = createTestTransactionResponse(testEntity);
+        TransactionResponseDto testResponse = createTestTransactionResponse(testEntity);
 
-        List<TransactionRequest> testRequests = List.of(testRequest);
+        List<TransactionRequestDto> testRequests = List.of(testRequest);
 
         when(transactionRepository.findByFinancialTransactionIdIn(any())).thenReturn(List.of());
-        when(transactionMapper.toEntity(any(TransactionRequest.class))).thenReturn(testEntity);
+        when(transactionMapper.toEntity(any(TransactionRequestDto.class))).thenReturn(testEntity);
         when(transactionRepository.saveAll(any())).thenReturn(List.of(testEntity));
         when(transactionMapper.toResponseList(any())).thenReturn(List.of(testResponse));
 
-        List<TransactionResponse> responses = transactionService.createTransactions(testRequests);
+        List<TransactionResponseDto> responses = transactionService.createTransactions(testRequests);
 
         assertNotNull(responses);
         verify(transactionRepository, times(1)).findByFinancialTransactionIdIn(any());
@@ -89,18 +89,18 @@ public class TransactionServiceTest {
     @Test
     void shouldDeduplicatePayloadAndSaveUniques() {
 
-        TransactionRequest testRequest = createTestTransactionRequest(TransactionType.DEBIT, "100.00", "Test transaction 0");
+        TransactionRequestDto testRequest = createTestTransactionRequest(TransactionType.DEBIT, "100.00", "Test transaction 0");
         TransactionEntity testEntity = createTestTransactionEntity(testRequest);
-        TransactionResponse testResponse = createTestTransactionResponse(testEntity);
+        TransactionResponseDto testResponse = createTestTransactionResponse(testEntity);
 
-        List<TransactionRequest> testRequests = List.of(testRequest, testRequest);
+        List<TransactionRequestDto> testRequests = List.of(testRequest, testRequest);
 
         when(transactionRepository.findByFinancialTransactionIdIn(any())).thenReturn(List.of());
-        when(transactionMapper.toEntity(any(TransactionRequest.class))).thenReturn(testEntity);
+        when(transactionMapper.toEntity(any(TransactionRequestDto.class))).thenReturn(testEntity);
         when(transactionRepository.saveAll(any())).thenReturn(List.of(testEntity));
         when(transactionMapper.toResponseList(any())).thenReturn(List.of(testResponse));
 
-        List<TransactionResponse> responses = transactionService.createTransactions(testRequests);
+        List<TransactionResponseDto> responses = transactionService.createTransactions(testRequests);
 
         assertNotNull(responses);
         assertEquals(1, responses.size());
@@ -112,20 +112,20 @@ public class TransactionServiceTest {
     @Test
     void shouldFilterExistingTransactionsAndSaveOnlyNewOnes() {
 
-        TransactionRequest testRequest0 = createTestTransactionRequest(TransactionType.DEBIT, "100.00", "Test transaction 0");
-        TransactionRequest testRequest1 = createTestTransactionRequest(TransactionType.CREDIT, "999.00", "Test transaction 1");
+        TransactionRequestDto testRequest0 = createTestTransactionRequest(TransactionType.DEBIT, "100.00", "Test transaction 0");
+        TransactionRequestDto testRequest1 = createTestTransactionRequest(TransactionType.CREDIT, "999.00", "Test transaction 1");
         TransactionEntity testEntity0 = createTestTransactionEntity(testRequest0);
         TransactionEntity testEntity1 = createTestTransactionEntity(testRequest1);
-        TransactionResponse testResponse1 = createTestTransactionResponse(testEntity1);
+        TransactionResponseDto testResponse1 = createTestTransactionResponse(testEntity1);
 
-        List<TransactionRequest> testRequests = List.of(testRequest0, testRequest1);
+        List<TransactionRequestDto> testRequests = List.of(testRequest0, testRequest1);
 
         when(transactionRepository.findByFinancialTransactionIdIn(any())).thenReturn(List.of(testEntity0));
         when(transactionMapper.toEntity(testRequest1)).thenReturn(testEntity1);
         when(transactionRepository.saveAll(any())).thenReturn(List.of(testEntity1));
         when(transactionMapper.toResponseList(any())).thenReturn(List.of(testResponse1));
 
-        List<TransactionResponse> responses = transactionService.createTransactions(testRequests);
+        List<TransactionResponseDto> responses = transactionService.createTransactions(testRequests);
 
         assertNotNull(responses);
         assertEquals(1, responses.size());
@@ -137,7 +137,7 @@ public class TransactionServiceTest {
     @Test
     void shouldThrowExceptionWhenAllTransactionsAlreadyExist() {
 
-        TransactionRequest testRequest = createTestTransactionRequest(TransactionType.DEBIT, "100.00", "Test transaction");
+        TransactionRequestDto testRequest = createTestTransactionRequest(TransactionType.DEBIT, "100.00", "Test transaction");
         TransactionEntity testEntity = createTestTransactionEntity(testRequest);
 
         when(transactionRepository.findByFinancialTransactionIdIn(any())).thenReturn(List.of(testEntity));
@@ -152,11 +152,11 @@ public class TransactionServiceTest {
     @Test
     void shouldThrowDatabaseErrorExceptionWhenSaveAllFails() {
 
-        TransactionRequest testRequest = createTestTransactionRequest(TransactionType.DEBIT, "100.00", "Test transaction");
+        TransactionRequestDto testRequest = createTestTransactionRequest(TransactionType.DEBIT, "100.00", "Test transaction");
         TransactionEntity testEntity = createTestTransactionEntity(testRequest);
 
         when(transactionRepository.findByFinancialTransactionIdIn(any())).thenReturn(List.of());
-        when(transactionMapper.toEntity(any(TransactionRequest.class))).thenReturn(testEntity);
+        when(transactionMapper.toEntity(any(TransactionRequestDto.class))).thenReturn(testEntity);
         when(transactionRepository.saveAll(any())).thenThrow(new RuntimeException("Database error"));
 
         DatabaseErrorException exception = assertThrows(DatabaseErrorException.class, () -> {

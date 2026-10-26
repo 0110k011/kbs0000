@@ -1,7 +1,7 @@
 package com.kbs0000.project.modules.transaction;
 
-import com.kbs0000.project.modules.transaction.dto.TransactionRequest;
-import com.kbs0000.project.modules.transaction.dto.TransactionResponse;
+import com.kbs0000.project.modules.transaction.dto.TransactionRequestDto;
+import com.kbs0000.project.modules.transaction.dto.TransactionResponseDto;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -9,13 +9,13 @@ import java.util.List;
 @Component
 public class TransactionMapper {
 
-    public TransactionResponse toResponse(TransactionEntity entity) {
+    public TransactionResponseDto toResponse(TransactionEntity entity) {
 
         if (entity == null) {
             return null;
         }
 
-        return new TransactionResponse(
+        return new TransactionResponseDto(
                 entity.getId(),
                 entity.getFinancialTransactionId(),
                 entity.getTransactionType().name(),
@@ -25,7 +25,7 @@ public class TransactionMapper {
         );
     }
 
-    public List<TransactionResponse> toResponseList(List<TransactionEntity> entities) {
+    public List<TransactionResponseDto> toResponseList(List<TransactionEntity> entities) {
 
         if (entities == null) {
             return List.of();
@@ -36,7 +36,7 @@ public class TransactionMapper {
                 .toList();
     }
 
-    public TransactionEntity toEntity(TransactionRequest request) {
+    public TransactionEntity toEntity(TransactionRequestDto request) {
 
         if (request == null) {
             return null;
