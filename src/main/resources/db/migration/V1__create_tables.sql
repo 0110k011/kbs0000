@@ -4,5 +4,7 @@ CREATE TABLE IF NOT EXISTS tb_transaction (
     date_posted TIMESTAMP NOT NULL,
     transaction_amount NUMERIC(19, 2) NOT NULL,
     financial_transaction_id VARCHAR(255) NOT NULL,
-    memo VARCHAR(255) NOT NULL
+    memo VARCHAR(255) NOT NULL,
+
+    CONSTRAINT uk_transaction_financial_id UNIQUE (financial_transaction_id)
 );

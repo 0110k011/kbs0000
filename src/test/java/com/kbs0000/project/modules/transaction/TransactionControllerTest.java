@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kbs0000.project.modules.transaction.dto.TransactionRequestDto;
 import com.kbs0000.project.modules.transaction.dto.TransactionResponseDto;
 import com.kbs0000.project.modules.transaction.exception.TransactionAlreadyExistsException;
+import com.ofxreader.dto.AccountStatement;
+import com.ofxreader.dto.Transaction;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -117,5 +120,42 @@ public class TransactionControllerTest {
                     .content(objectMapper.writeValueAsString(List.of(testRequest))))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.message", is("Financial Transaction(s) already exists")));
+    }
+
+    @Test
+    void shouldUploadOfxFileSuccessfully() throws Exception {
+        String ofxContent = "OFXHEADER:100\nDATA:OFXSGML\n<OFX></OFX>";
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "test.ofx",
+                "application/octet-stream",
+                ofxContent.getBytes()
+        );
+
+        Transaction testTransaction1 = new Transaction(
+                "20230115001",
+                new BigDecimal("-50.00"),
+                LocalDateTime.parse("2023-01-15T00:00:00"),
+                "Store Purchase 1",
+                "DEBIT"
+        );
+
+        AccountStatement mockStatement = new AccountStatement(
+                "BANK S.A.",
+                "BRL",
+                "0000",
+                "1",
+                "00000000-0",
+                "CHECKING",
+                LocalDateTime.parse("2025-01-01T00:00:00"),
+                LocalDateTime.parse("2025-01-31T00:00:00"),
+                List.of(testTransaction1),
+                0
+        );
+        when(transactionService.mapOFXFile(any())).thenReturn(mockStatement);
+
+        mockMvc.perform(multipart("/api/v1/transactions")
+                    .file(file))
+                .andExpect(status().isOk());
     }
 }

@@ -29,7 +29,7 @@ public class TransactionController {
             @PathVariable("accountId") String accountId,
             @RequestBody
             @NotEmpty(message = "Transaction request list cannot be empty")
-            @Valid List<TransactionRequestDto> requests) {
+            List<@Valid TransactionRequestDto> requests) {
         List<TransactionResponseDto> transactions = transactionService.createTransactions(requests);
         return ResponseEntity.status(HttpStatus.CREATED).body(transactions);
     }
