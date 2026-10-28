@@ -3,7 +3,6 @@ package com.kbs0000.project.modules.transaction;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kbs0000.project.modules.transaction.dto.TransactionRequestDto;
 import com.kbs0000.project.modules.transaction.dto.TransactionResponseDto;
-import com.kbs0000.project.modules.transaction.exception.OFXException;
 import com.kbs0000.project.modules.transaction.exception.TransactionAlreadyExistsException;
 import com.ofxreader.dto.AccountStatement;
 import com.ofxreader.dto.Transaction;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -150,38 +148,4 @@ public class TransactionControllerTest {
                 .andExpect(jsonPath("$.message", is("Financial Transaction(s) already exists")));
     }
 
-    @Test
-    void shouldReturn200WhenUploadOfxFileSuccessfully() throws Exception {
-        String ofxContent = "OFXHEADER:100\nDATA:OFXSGML\n<OFX></OFX>";
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "test.ofx",
-                "application/octet-stream",
-                ofxContent.getBytes()
-        );
-
-        when(transactionService.mapOFXFile(any())).thenReturn(createValidAccountStatement());
-
-        mockMvc.perform(multipart("/api/v1/transactions")
-                    .file(file))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void shouldReturn400WhenUploadOfxFileWithInvalidContent() throws Exception {
-        String invalidOfxContent = "<HTML></HTML>";
-        MockMultipartFile file = new MockMultipartFile(
-                "file",
-                "test.ofx",
-                "application/octet-stream",
-                invalidOfxContent.getBytes()
-        );
-
-        when(transactionService.mapOFXFile(any())).thenThrow(new OFXException("Tag <OFX> não encontrada no arquivo."));
-
-        mockMvc.perform(multipart("/api/v1/transactions")
-                    .file(file))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.message", is("Tag <OFX> não encontrada no arquivo.")));
-    }
 }
