@@ -1,6 +1,6 @@
 package com.kbs0000.project.modules.integration;
 
-import com.kbs0000.project.modules.integration.exception.OFXException;
+import com.kbs0000.project.modules.integration.exception.IntegrationOFXException;
 import com.ofxreader.dto.AccountStatement;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,9 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,9 +29,9 @@ public class IntegrationServiceTest {
 
         String validOfxContent = "OFXHEADER:100\nDATA:OFX<OFX><DTSTART>20250101000000[-3:BRT]</DTSTART>\n" +
                 "<DTEND>20250131000000[-3:BRT]</DTEND></OFX> \n";
-        InputStream inputStream = new ByteArrayInputStream(validOfxContent.getBytes(StandardCharsets.UTF_8));
+        byte[] fileBytes = validOfxContent.getBytes(StandardCharsets.UTF_8);
 
-        when(mockFile.getInputStream()).thenReturn(inputStream);
+        when(mockFile.getBytes()).thenReturn(fileBytes);
 
         AccountStatement result = integrationService.mapOFXFile(mockFile);
 
@@ -44,9 +42,9 @@ public class IntegrationServiceTest {
     void shouldThrowOFXExceptionWhenGetInputStreamFails() throws Exception {
         MultipartFile mockFile = mock(MultipartFile.class);
 
-        when(mockFile.getInputStream()).thenThrow(new IOException("Erro de leitura"));
+        when(mockFile.getBytes()).thenThrow(new IOException("Erro de leitura"));
 
-        OFXException exception = assertThrows(OFXException.class, () -> {
+        IntegrationOFXException exception = assertThrows(IntegrationOFXException.class, () -> {
             integrationService.mapOFXFile(mockFile);
         });
 
@@ -58,14 +56,14 @@ public class IntegrationServiceTest {
         MultipartFile mockFile = mock(MultipartFile.class);
 
         String validOfxContent = "OFXHEADER:100\nDATA:OFX<OFX><DTSTART>20250101000000[-3:BRT]</DTSTART></OFX> \n";
-        InputStream inputStream = new ByteArrayInputStream(validOfxContent.getBytes(StandardCharsets.UTF_8));
+        byte[] fileBytes = validOfxContent.getBytes(StandardCharsets.UTF_8);
 
-        when(mockFile.getInputStream()).thenReturn(inputStream);
+        when(mockFile.getBytes()).thenReturn(fileBytes);
 
 
-        OFXException exception = assertThrows(OFXException.class, () -> {
+        IntegrationOFXException exception = assertThrows(IntegrationOFXException.class, () -> {
             integrationService.mapOFXFile(mockFile);
         });
-        assertEquals("DTEND não pode ser nulo", exception.getMessage());
+        assertEquals("DTEND cannot be null", exception.getMessage());
     }
 }

@@ -1,7 +1,7 @@
 package com.kbs0000.project.modules.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kbs0000.project.modules.integration.exception.OFXException;
+import com.kbs0000.project.modules.integration.exception.IntegrationOFXException;
 import com.ofxreader.dto.AccountStatement;
 import com.ofxreader.dto.Transaction;
 import org.junit.jupiter.api.Test;
@@ -88,7 +88,7 @@ public class IntegrationControllerTest {
                 invalidOfxContent.getBytes()
         );
 
-        when(integrationService.mapOFXFile(any())).thenThrow(new OFXException("Tag <OFX> não encontrada no arquivo."));
+        when(integrationService.mapOFXFile(any())).thenThrow(new IntegrationOFXException("Tag <OFX> não encontrada no arquivo."));
 
         mockMvc.perform(multipart("/api/v1/integrations")
                         .file(file))
