@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kbs0000.project.modules.integration.exception.IntegrationOFXException;
 import com.ofxreader.dto.AccountStatement;
 import com.ofxreader.dto.Transaction;
+import com.ofxreader.exception.OFXException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -88,11 +90,11 @@ public class IntegrationControllerTest {
                 invalidOfxContent.getBytes()
         );
 
-        when(integrationService.mapOFXFile(any())).thenThrow(new IntegrationOFXException("Tag <OFX> não encontrada no arquivo."));
+        when(integrationService.mapOFXFile(any())).thenThrow(new IntegrationOFXException("Tag <OFX> not found in the file", HttpStatus.BAD_REQUEST, new OFXException("Tag <OFX> not found in the file", 400)));
 
         mockMvc.perform(multipart("/api/v1/integrations")
                         .file(file))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.message", is("Tag <OFX> não encontrada no arquivo.")));
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", is("Tag <OFX> not found in the file")));
     }
 }
